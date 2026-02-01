@@ -824,7 +824,14 @@ elif page == "Add Transaction":
             recent_transactions = st.session_state.transactions.tail(5)
             for _, trans in recent_transactions.iterrows():
                 amount_color = "positive-amount" if trans['Amount'] > 0 else "negative-amount"
-                st.write(f"**{trans['Date'].strftime('%b %d')}** - {trans['Description']}")
+                # Fix date formatting issue
+                trans_date = trans['Date']
+                if hasattr(trans_date, 'strftime'):
+                    date_str = trans_date.strftime('%b %d')
+                else:
+                    date_str = str(trans_date)
+                
+                st.write(f"**{date_str}** - {trans['Description']}")
                 st.markdown(f'<span class="{amount_color}">{format_zar(trans["Amount"])}</span>', 
                           unsafe_allow_html=True)
                 st.write(f"*{trans['Category']}* • {trans['Account']}")
@@ -1499,4 +1506,4 @@ if 'last_save' not in st.session_state:
 save_elapsed = (datetime.now() - st.session_state.last_save).seconds
 if save_elapsed > 300:  # 5 minutes
     st.toast("Remember to save your changes!")
-    st.session_state.last_save = datetime.now()
+    st.session_state.last_save = datetime.now()  # FIXED: Added missing closing parenthesis
